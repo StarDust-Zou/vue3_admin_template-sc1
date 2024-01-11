@@ -1,15 +1,15 @@
 <template>
   <div>
-    <h1>新增一个标题</h1>
+    <h1>SVG测试</h1>
   </div>
 </template>
 
-<script setup lang="ts" name="App">
-for (let i = 0; i < 100; i++) {
-  console.log(i)
+<script setup lang="ts" name="App"></script>
+
+<style scoped lang="scss">
+div {
+  h1 {
+    color: $color;
+  }
 }
-
-let str = '我是祖国的老花骨朵'
-</script>
-
-<style scoped></style>
+</style>
