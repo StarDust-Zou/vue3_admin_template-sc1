@@ -1,15 +1,7 @@
 <template>
-  <div>
-    <h1>SVG测试</h1>
-  </div>
+  <h1>我是h1</h1>
 </template>
 
 <script setup lang="ts" name="App"></script>
 
-<style scoped lang="scss">
-div {
-  h1 {
-    color: $color;
-  }
-}
-</style>
+<style scoped></style>
