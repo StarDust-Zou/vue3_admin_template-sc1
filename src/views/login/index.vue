@@ -128,6 +128,7 @@ const rules = {
     { trigger: 'change', validator: validatorPassword },
   ],
 }
+console.log(1)
 </script>
 
 <style scoped lang="scss">
