@@ -1,7 +1,12 @@
 <template>
-  <el-button size="small" icon="Refresh" circle="true"></el-button>
-  <el-button size="small" icon="FullScreen" circle="true"></el-button>
-  <el-button size="small" icon="Setting" circle="true"></el-button>
+  <el-button
+    size="small"
+    icon="Refresh"
+    circle
+    @click="updateRefresh"
+  ></el-button>
+  <el-button size="small" icon="FullScreen" circle></el-button>
+  <el-button size="small" icon="Setting" circle></el-button>
   <img src="/logo.png" style="width: 24px; height: 24px; margin: 0 10px" />
   <!-- 下拉菜单 -->
   <el-dropdown>
@@ -19,7 +24,15 @@
   </el-dropdown>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+//获取骨架的小仓库
+import useLayOutSettingStore from '@/store/modules/setting'
+const LayOutSettingStore = useLayOutSettingStore()
+
+const updateRefresh = () => {
+  LayOutSettingStore.refresh = !LayOutSettingStore.refresh
+}
+</script>
 
 <script lang="ts">
 export default {
