@@ -26,7 +26,7 @@
     </span>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item>退出登录</el-dropdown-item>
+        <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -35,10 +35,12 @@
 <script setup lang="ts">
 //获取骨架的小仓库
 import useLayOutSettingStore from '@/store/modules/setting'
-import useStore from 'element-plus/es/components/table/src/store'
-const LayOutSettingStore = useLayOutSettingStore()
-//获取用户相关的小仓库
+import { useRouter, useRoute } from 'vue-router'
 import useUserStore from '@/store/modules/user'
+const LayOutSettingStore = useLayOutSettingStore()
+const $router = useRouter()
+const $route = useRoute()
+//获取用户相关的小仓库
 const userStore = useUserStore()
 //刷新按钮点击回调
 const updateRefresh = () => {
@@ -54,6 +56,15 @@ const fullScreen = () => {
   } else {
     document.exitFullscreen()
   }
+}
+//退出登录回调
+const logout = () => {
+  //第一件事情:需要向服务器发送请求[退出登录接口]
+  //第二件事情:仓库中用户相关数据情况[token|username|avatar]
+  //第三件事情:跳转到登录页面
+  userStore.userLogout()
+  //跳转到登录页面
+  $router.push({ path: '/login', query: { redirect: $route.path } })
 }
 </script>
 

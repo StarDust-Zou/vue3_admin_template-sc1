@@ -47,15 +47,16 @@ import { User, Lock } from '@element-plus/icons-vue'
 import { reactive, ref } from 'vue'
 //引入用户相关的小仓库
 import useUserStore from '@/store/modules/user'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { ElNotification } from 'element-plus'
 import { getTime } from '@/utils/time'
 
-let useStore = useUserStore()
+const useStore = useUserStore()
 //获取el-form组件
-let loginForms = ref()
+const loginForms = ref()
 //获取路由器
-let $router = useRouter()
+const $router = useRouter()
+const $route = useRoute()
 //定义变量控制按钮加载效果
 let loading = ref(false)
 //收集账号与密码的数据
@@ -75,7 +76,9 @@ const login = async () => {
     //保证登录成功
     await useStore.userLogin(loginForm)
     //编程式导航跳转到主页
-    $router.push('/')
+    //判断登录query参数
+    let redirect: any = $route.query.redirect
+    $router.push({ path: redirect || '/' })
     //登录成功提示信息
     ElNotification({
       type: 'success',
