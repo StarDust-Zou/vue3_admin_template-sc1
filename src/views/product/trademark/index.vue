@@ -30,14 +30,15 @@
     </el-table>
     <!-- 分页器组件 -->
     <el-pagination
+      @current-change="getHasTrademark"
+      @size-change="sizeChange"
+      pager-count="9"
       v-model:current-page="pageNo"
       v-model:page-size="limit"
       :page-sizes="[3, 5, 7, 9]"
       :background="background"
       layout="prev, pager, next, jumper, ->, sizes, total"
       :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
     />
   </el-card>
 </template>
@@ -58,7 +59,8 @@ let total = ref<number>(0)
 //存储已有品牌的数据
 let trademarkArr = ref<Records>([])
 //获取已有品牌的接口封装为一个函数：在任何情况下获取数据，调用函数即可
-const getHasTrademark = async () => {
+const getHasTrademark = async (pager = 1) => {
+  pageNo.value = pager
   let result: TradeMarkResponseData = await reqHasTrademark(
     pageNo.value,
     limit.value,
@@ -73,6 +75,20 @@ const getHasTrademark = async () => {
 onMounted(() => {
   getHasTrademark()
 })
+
+//分页器当前页码发生变化的时候会触发
+//对于当前页码发生变化自定义事件，组件pagination父组件回传了数据
+// const changePageNo = () => {
+//   //当前页码发生变化的时候再次发送请求
+//   getHasTrademark()
+// }
+//当下拉菜单发生变化的时候会触发此方法
+//这个自定义事件，分页器组件会将下拉菜单选择数据返回
+const sizeChange = () => {
+  //当前每页数据量发生变化的时候，当前页码归一
+
+  getHasTrademark()
+}
 </script>
 
 <style scoped></style>
