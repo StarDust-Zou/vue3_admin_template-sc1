@@ -88,7 +88,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
-import { reqHasTrademark } from '@/api/product/trademark'
+import {
+  reqHasTrademark,
+  reqAddOrUpdateTrademark,
+} from '@/api/product/trademark'
 import type {
   Records,
   TradeMark,
@@ -144,6 +147,9 @@ const sizeChange = () => {
 const addTrademark = () => {
   //对话框显示
   dialogFormVisible.value = true
+  //收集数据清空
+  trademarkParams.tmName = ''
+  trademarkParams.logoUrl = ''
 }
 //修改已有品牌按钮回调
 const updateTrademark = () => {
@@ -155,8 +161,28 @@ const cancel = () => {
   //对话框隐藏
   dialogFormVisible.value = false
 }
-const confirm = () => {
-  dialogFormVisible.value = false
+const confirm = async () => {
+  let result: any = await reqAddOrUpdateTrademark(trademarkParams)
+  //添加品牌成功
+  if (result.code == 200) {
+    //关闭对话框
+    dialogFormVisible.value = false
+    //弹出提示信息
+    ElMessage({
+      type: 'success',
+      message: '添加品牌成功',
+    })
+    //再次发请求获取已有的全部品牌数据
+    getHasTrademark()
+  } else {
+    //关闭对话框
+    dialogFormVisible.value = false
+    //添加品牌失败
+    ElMessage({
+      type: 'error',
+      message: '添加品牌失败',
+    })
+  }
 }
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   if (rawFile.type !== 'image/jpeg') {
