@@ -31,7 +31,16 @@
             icon="Edit"
             @click="updateTrademark(row)"
           ></el-button>
-          <el-button type="primary" size="small" icon="Delete"></el-button>
+          <el-popconfirm
+            :title="`您确定要删除${row.tmName}吗?`"
+            width="250px"
+            icon="Delete"
+            @confirm="removeTrademark(row.id)"
+          >
+            <template #reference>
+              <el-button type="primary" size="small" icon="Delete"></el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -99,6 +108,7 @@ import { ref, onMounted, reactive, nextTick } from 'vue'
 import {
   reqHasTrademark,
   reqAddOrUpdateTrademark,
+  reqDeleteTrademark,
 } from '@/api/product/trademark'
 import type {
   Records,
@@ -288,6 +298,28 @@ const rules = {
     { required: true, trigger: 'blur', validator: validatortmName },
   ],
   logoUrl: [{ required: true, validator: validatorLogoUrl }],
+}
+
+//气泡确认框确定按钮的回调
+const removeTrademark = async (id: number) => {
+  //点击确定按钮删除已有品牌请求
+  let result: any = await reqDeleteTrademark(id)
+  if (result.code == 200) {
+    //删除成功提示信息
+    ElMessage({
+      type: 'success',
+      message: '删除品牌成功',
+    })
+    //再次获取已有的品牌数据
+    getHasTrademark(
+      trademarkArr.value.length > 1 ? pageNo.value : pageNo.value - 1,
+    )
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '删除品牌失败',
+    })
+  }
 }
 </script>
 
