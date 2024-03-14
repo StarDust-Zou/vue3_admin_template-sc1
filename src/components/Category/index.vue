@@ -3,6 +3,7 @@
     <el-form inline>
       <el-form-item label="一级分类">
         <el-select
+          :disabled="scene"
           style="width: 240px"
           v-model="categoryStore.c1Id"
           @change="handler"
@@ -18,6 +19,7 @@
       </el-form-item>
       <el-form-item label="二级分类">
         <el-select
+          :disabled="scene"
           style="width: 240px"
           v-model="categoryStore.c2Id"
           @change="handler1"
@@ -31,7 +33,11 @@
         </el-select>
       </el-form-item>
       <el-form-item label="三级分类">
-        <el-select style="width: 240px" v-model="categoryStore.c3Id">
+        <el-select
+          :disabled="scene"
+          style="width: 240px"
+          v-model="categoryStore.c3Id"
+        >
           <el-option
             v-for="(c3, index) in categoryStore.c3Arr"
             :key="c3.id"
@@ -73,6 +79,8 @@ const handler1 = () => {
   categoryStore.c3Id = ''
   categoryStore.getC3()
 }
+//接受父组件传递场景值
+defineProps(['scene'])
 </script>
 
 <style scoped></style>
