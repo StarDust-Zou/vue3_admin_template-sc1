@@ -87,14 +87,27 @@
             <!-- row即为当前属性值对象 -->
             <template #="{ row, $index }">
               <el-input
+                v-if="row.flag"
+                @blur="toRead(row, $index)"
+                size="small"
                 placeholder="请你输入属性值名称"
                 v-model="row.valueName"
               ></el-input>
+              <div v-else @click="toEdit(row)" style="height: 23px">
+                {{ row.valueName }}
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="属性值操作"></el-table-column>
         </el-table>
-        <el-button type="primary" size="default" @click="save">保存</el-button>
+        <el-button
+          type="primary"
+          size="default"
+          @click="save"
+          :disabled="attrParams.attrValueList.length > 0 ? false : true"
+        >
+          保存
+        </el-button>
         <el-button type="primary" size="default" @click="cancel">
           取消
         </el-button>
@@ -108,16 +121,17 @@
 import { watch, ref, reactive } from 'vue'
 //引入获取已有属性与属性值接口
 import { reqAddOrUpdate, reqAttr } from '@/api/product/attr'
-import type { AttrResponseData, Attr } from '@/api/product/attr/type'
+import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
 //获取分类的仓库
 import useCategoryStore from '@/store/modules/category'
 import { ElMessage } from 'element-plus'
-import { reqAddOrUpdateTrademark } from '@/api/product/trademark'
 let categoryStore = useCategoryStore()
 //存储已有的属性和属性值
 let attrArr = ref<Attr[]>([])
 //定义card组件内容切换变量
 let scene = ref<number>(0) //scene=0,显示table,scene=1,展示添加与修改属性结构
+/* //定义一个响应式数据控制编辑模式与查看模式切换
+let flag = ref(true) */
 //收集新增的属性的数据
 let attrParams = reactive<Attr>({
   attrName: '',
@@ -172,6 +186,7 @@ const addAttrValue = () => {
   //点击添加属性值按钮时，向数组添加一个属性值对象
   attrParams.attrValueList.push({
     valueName: '',
+    flag: true, //控制每一个属性的显示模式
   })
 }
 //保存按钮回调
@@ -194,6 +209,36 @@ const save = async () => {
       message: attrParams.id ? '修改失败' : '添加失败',
     })
   }
+}
+//失焦变为查看模式
+const toRead = (row: AttrValue, $index: number) => {
+  //非法情况1判断
+  if (row.valueName.trim() == '') {
+    attrParams.attrValueList.splice($index, 1)
+    //提示信息
+    ElMessage({
+      type: 'error',
+      message: '属性值不能为空',
+    })
+  }
+  //非法情况2
+  let repeat = attrParams.attrValueList.find((item) => {
+    if (item != row) {
+      return item.valueName === row.valueName
+    }
+  })
+  if (repeat) {
+    attrParams.attrValueList.splice($index, 1)
+    ElMessage({
+      type: 'error',
+      message: '属性值不能重复',
+    })
+  }
+  row.flag = false
+}
+//聚焦变为编辑模式
+const toEdit = (row: AttrValue) => {
+  row.flag = true
 }
 </script>
 
