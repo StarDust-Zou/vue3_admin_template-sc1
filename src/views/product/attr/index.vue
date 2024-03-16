@@ -87,18 +87,28 @@
             <!-- row即为当前属性值对象 -->
             <template #="{ row, $index }">
               <el-input
+                :ref="(vc: any) => (inputArr[$index] = vc)"
                 v-if="row.flag"
                 @blur="toRead(row, $index)"
                 size="small"
                 placeholder="请你输入属性值名称"
                 v-model="row.valueName"
               ></el-input>
-              <div v-else @click="toEdit(row)" style="height: 23px">
+              <div v-else @click="toEdit(row, $index)" style="height: 23px">
                 {{ row.valueName }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="属性值操作"></el-table-column>
+          <el-table-column label="属性值操作">
+            <template #="{ row, $index }">
+              <el-button
+                type="primary"
+                size="small"
+                icon="Delete"
+                @click="attrParams.attrValueList.splice($index, 1)"
+              ></el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <el-button
           type="primary"
@@ -118,7 +128,7 @@
 
 <script setup lang="ts">
 //组合式API函数watch
-import { watch, ref, reactive } from 'vue'
+import { watch, ref, reactive, nextTick } from 'vue'
 //引入获取已有属性与属性值接口
 import { reqAddOrUpdate, reqAttr } from '@/api/product/attr'
 import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
@@ -139,7 +149,8 @@ let attrParams = reactive<Attr>({
   categoryId: '',
   categoryLevel: 3,
 })
-
+//准备一个数组：将来存储对应的组件实例
+let inputArr = ref<any>([])
 //监听仓库三级分类ID变化
 watch(
   () => categoryStore.c3Id,
@@ -187,6 +198,10 @@ const addAttrValue = () => {
   attrParams.attrValueList.push({
     valueName: '',
     flag: true, //控制每一个属性的显示模式
+  })
+  //获取最后el-input组件聚焦
+  nextTick(() => {
+    inputArr.value[attrParams.attrValueList.length - 1].focus()
   })
 }
 //保存按钮回调
@@ -237,8 +252,11 @@ const toRead = (row: AttrValue, $index: number) => {
   row.flag = false
 }
 //聚焦变为编辑模式
-const toEdit = (row: AttrValue) => {
+const toEdit = (row: AttrValue, $index: number) => {
   row.flag = true
+  nextTick(() => {
+    inputArr.value[$index].focus()
+  })
 }
 </script>
 
