@@ -71,7 +71,7 @@
       </div>
       <!-- 添加|修改SPU子组件 -->
       <SpuForm
-        ref="SpuForm"
+        ref="spu"
         v-show="scene == 1"
         @changeScene="changeScene"
       ></SpuForm>
@@ -146,6 +146,7 @@ const updateSpu = (row: SpuData) => {
   //切换为场景1
   scene.value = 1
   //调用子组件实例方法获取完整已有的SPU的数据
+  // console.log(spu.value);
   spu.value.initHasSpuData(row)
 }
 //子组件spuForm绑定自定义事件

@@ -1,17 +1,27 @@
 <template>
   <el-form label-width="100px">
     <el-form-item label="SPU名称">
-      <el-input placeholder="请你输入SPU名称"></el-input>
+      <el-input
+        placeholder="请你输入SPU名称"
+        v-model="SpuParams.spuName"
+      ></el-input>
     </el-form-item>
     <el-form-item label="SPU品牌">
-      <el-select style="width: 240px">
-        <el-option label="华为" value="华为"></el-option>
-        <el-option label="oppo" value="oppo"></el-option>
-        <el-option label="vivo" value="vivo"></el-option>
+      <el-select v-model="SpuParams.tmId" style="width: 240px">
+        <el-option
+          v-for="(item, index) in AllTradeMark"
+          :key="item.id"
+          :label="item.tmName"
+          :value="item.id"
+        ></el-option>
       </el-select>
     </el-form-item>
     <el-form-item label="SPU描述">
-      <el-input type="textarea" placeholder="请你输入SPU描述"></el-input>
+      <el-input
+        type="textarea"
+        placeholder="请你输入SPU描述"
+        v-model="SpuParams.description"
+      ></el-input>
     </el-form-item>
     <el-form-item label="SPU照片">
       <el-upload
@@ -69,6 +79,7 @@ import {
 } from '@/api/product/spu'
 import {
   AllTradeMark,
+  TradeMark,
   HasSaleAttr,
   HasSaleAttrResponseData,
   SaleAttr,
@@ -77,7 +88,6 @@ import {
   SpuHasImg,
   SpuImage,
 } from '@/api/product/spu/type'
-import { TradeMark } from '@/api/product/trademark/type'
 import { ref } from 'vue'
 
 let $emit = defineEmits(['changeScene'])
@@ -93,8 +103,19 @@ let imgList = ref<SpuImage[]>([])
 let saleAttr = ref<SaleAttr[]>([])
 //全部销售属性
 let allSaleAttr = ref<HasSaleAttr[]>([])
+//存储已有的SPU对象
+let SpuParams = ref<SpuData>({
+  category3Id: '', //收集三级分类ID
+  spuName: '', //SPU名字
+  description: '', //SPU描述
+  tmId: '', //品牌的ID
+  spuImageList: [],
+  spuSaleAttrList: [],
+})
 //子组件书写一个方法
 const initHasSpuData = async (spu: SpuData) => {
+  //存储已有的SPU对象，将来在模板中展示
+  SpuParams.value = spu
   //spu即为父组件传递过来的已有的SPU对象[不完整]
   //获取全部品牌的数据
   let result: AllTradeMark = await reqAllTradeMark()
@@ -116,7 +137,7 @@ const initHasSpuData = async (spu: SpuData) => {
 }
 
 //对外暴露
-defineExpose([initHasSpuData])
+defineExpose({ initHasSpuData })
 </script>
 
 <style scoped></style>
