@@ -61,11 +61,62 @@
 </template>
 
 <script setup lang="ts">
+import {
+  reqAllSaleAttr,
+  reqAllTradeMark,
+  reqSpuHasSaleAttr,
+  reqSpuImageUrl,
+} from '@/api/product/spu'
+import {
+  AllTradeMark,
+  HasSaleAttr,
+  HasSaleAttrResponseData,
+  SaleAttr,
+  SaleAttrResponseData,
+  SpuData,
+  SpuHasImg,
+  SpuImage,
+} from '@/api/product/spu/type'
+import { TradeMark } from '@/api/product/trademark/type'
+import { ref } from 'vue'
+
 let $emit = defineEmits(['changeScene'])
 //点击取消按钮:通知父组件切换场景为0
 const cancel = () => {
   $emit('changeScene', 0)
 }
+//存储已有的SPU数据
+let AllTradeMark = ref<TradeMark[]>([])
+//商品图片
+let imgList = ref<SpuImage[]>([])
+//已有SPU销售属性
+let saleAttr = ref<SaleAttr[]>([])
+//全部销售属性
+let allSaleAttr = ref<HasSaleAttr[]>([])
+//子组件书写一个方法
+const initHasSpuData = async (spu: SpuData) => {
+  //spu即为父组件传递过来的已有的SPU对象[不完整]
+  //获取全部品牌的数据
+  let result: AllTradeMark = await reqAllTradeMark()
+  //获取某个品牌旗下全部售卖商品图片
+  let result1: SpuHasImg = await reqSpuImageUrl(spu.id as number)
+  //获取已有SPU销售属性的数据
+  let result2: SaleAttrResponseData = await reqSpuHasSaleAttr(spu.id as number)
+  //获取整个项目全部SPU销售属性数据
+  let result3: HasSaleAttrResponseData = await reqAllSaleAttr()
+
+  //存储全部品牌的数据
+  AllTradeMark.value = result.data
+  //SPU对应商品图片
+  imgList.value = result1.data
+  //存储已有SPU销售属性
+  saleAttr.value = result2.data
+  //存储全部的销售属性
+  allSaleAttr.value = result3.data
+}
+
+//对外暴露
+defineExpose([initHasSpuData])
 </script>
 
 <style scoped></style>
