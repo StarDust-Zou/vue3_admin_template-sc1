@@ -62,7 +62,7 @@ export interface SaleAttrValue {
   createTime?: null
   updateTime?: null
   spuId?: number
-  baseSaleAttrId: number
+  baseSaleAttrId: number | string
   saleAttrValueName: string
   saleAttrName?: string
   isChecked?: null
@@ -79,6 +79,7 @@ export interface SaleAttr {
   baseSaleAttrId: number | string
   saleAttrName: string
   spuSaleAttrValueList: spuSaleAttrValueList
+  flag?: boolean
 }
 
 //SPU已有销售属性接口返回数据类型

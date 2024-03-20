@@ -32,7 +32,6 @@
         action="/api/admin/product/fileUpload"
         list-type="picture-card"
         :on-preview="handlePictureCardPreview"
-        :on-remove="handleRemove"
         :before-upload="handlerUpload"
       >
         <el-icon>
@@ -92,14 +91,29 @@
         <el-table-column label="属性值">
           <template #="{ row, $index }">
             <el-tag
-              style="margin: 5px 0"
-              v-for="(item, index) in row.spuSaleAttrList"
+              @close="row.spuSaleAttrValueList.splice(index, 1)"
+              style="margin: 0 5px"
+              v-for="(item, index) in row.spuSaleAttrValueList"
               :key="row.id"
               closable
             >
               {{ item.saleAttrValueName }}
             </el-tag>
-            <el-button type="primary" size="small" icon="Delete"></el-button>
+            <el-input
+              @blur="toRead(row)"
+              v-model="row.saleAttrValue"
+              v-if="row.flag == true"
+              placeholder="请你输入属性值"
+              size="small"
+              style="width: 100px"
+            ></el-input>
+            <el-button
+              @click="toEdit(row)"
+              v-else
+              type="primary"
+              size="small"
+              icon="Plus"
+            ></el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="120px">
@@ -138,6 +152,7 @@ import {
   SpuData,
   SpuHasImg,
   SpuImage,
+  SaleAttrValue,
 } from '@/api/product/spu/type'
 import { ElMessage } from 'element-plus'
 import { computed, ref } from 'vue'
@@ -245,6 +260,49 @@ const addSaleAttr = () => {
   saleAttr.value.push(newSaleAttr)
   //清空收集的数据
   saleAttrIdAndValueName.value = ''
+}
+//编辑模式
+const toEdit = (row: SaleAttr) => {
+  row.flag = true
+  //@ts-ignore
+  row.saleAttrValue = ''
+}
+//展示模式
+const toRead = (row: SaleAttr) => {
+  //整理收集到的属性ID与属性值名字
+  //@ts-ignore
+  const { baseSaleAttrId, saleAttrValue } = row
+  let newSaleAttrValue: SaleAttrValue = {
+    baseSaleAttrId,
+    saleAttrValueName: saleAttrValue,
+  }
+
+  //非法情况判断
+  if (saleAttrValue.trim() == '') {
+    ElMessage({
+      type: 'error',
+      message: '属性值不能为空',
+    })
+    return
+  }
+  //判断属性值是否在数组中存在
+  let repeat = row.spuSaleAttrValueList.find((item) => {
+    return item.saleAttrValueName == saleAttrValue
+  })
+
+  if (repeat) {
+    ElMessage({
+      type: 'error',
+      message: '属性值不能重复',
+    })
+    return
+  }
+
+  //追加新的属性对象
+  row.spuSaleAttrValueList.push(newSaleAttrValue)
+
+  //切换为查看模式
+  row.flag = false
 }
 
 //计算出SPU还未拥有的销售属性
