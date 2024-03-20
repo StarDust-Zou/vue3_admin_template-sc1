@@ -24,12 +24,16 @@
       ></el-input>
     </el-form-item>
     <el-form-item label="SPU照片">
+      <!-- v-model:filelist->展示默认图片 
+      action:上传图片的接口地址
+      -->
       <el-upload
-        v-model:file-list="fileList"
-        action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+        v-model:file-list="imgList"
+        action="/api/admin/product/fileUpload"
         list-type="picture-card"
         :on-preview="handlePictureCardPreview"
         :on-remove="handleRemove"
+        :before-upload="handlerUpload"
       >
         <el-icon>
           <Plus />
@@ -37,7 +41,12 @@
       </el-upload>
 
       <el-dialog v-model="dialogVisible">
-        <img w-full :src="dialogImageUrl" alt="Preview Image" />
+        <img
+          w-full
+          :src="dialogImageUrl"
+          alt="Preview Image"
+          style="width: 100%; height: 100%"
+        />
       </el-dialog>
     </el-form-item>
     <el-form-item label="SPU销售属性">
@@ -88,6 +97,7 @@ import {
   SpuHasImg,
   SpuImage,
 } from '@/api/product/spu/type'
+import { ElMenu, ElMessage } from 'element-plus'
 import { ref } from 'vue'
 
 let $emit = defineEmits(['changeScene'])
@@ -103,6 +113,10 @@ let imgList = ref<SpuImage[]>([])
 let saleAttr = ref<SaleAttr[]>([])
 //全部销售属性
 let allSaleAttr = ref<HasSaleAttr[]>([])
+//控制对话框的显示和隐藏
+let dialogVisible = ref<boolean>(false)
+//存储预览图片地址
+let dialogImageUrl = ref<string>('')
 //存储已有的SPU对象
 let SpuParams = ref<SpuData>({
   category3Id: '', //收集三级分类ID
@@ -129,11 +143,50 @@ const initHasSpuData = async (spu: SpuData) => {
   //存储全部品牌的数据
   AllTradeMark.value = result.data
   //SPU对应商品图片
-  imgList.value = result1.data
+  imgList.value = result1.data.map((item) => {
+    return {
+      name: item.imgName,
+      url: item.imgUrl,
+    }
+  })
   //存储已有SPU销售属性
   saleAttr.value = result2.data
   //存储全部的销售属性
   allSaleAttr.value = result3.data
+}
+
+//照片墙点击预览按钮的时候触发的钩子
+const handlePictureCardPreview = (file: any) => {
+  //对话框弹出
+  dialogVisible.value = true
+  dialogImageUrl.value = file.url
+}
+/* //照片墙删除文件的钩子
+const handleRemove = () => {
+
+} */
+//照片墙上传成功之前的钩子，约束文件类型和大小
+const handlerUpload = (file: any) => {
+  if (
+    file.type === 'image/png' ||
+    file.type === 'image/jpeg' ||
+    file.type === 'image/gif'
+  ) {
+    //文件大小小于3M
+    if (file.size / 1024 / 1024 < 3) {
+      return true
+    } else {
+      ElMessage({
+        type: 'error',
+        message: '上传的文件需要小于3M',
+      })
+    }
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '上传的文件务必是PNG|JPG|GIF类型',
+    })
+  }
 }
 
 //对外暴露
