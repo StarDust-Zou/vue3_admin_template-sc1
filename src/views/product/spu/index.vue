@@ -153,6 +153,7 @@ const updateSpu = (row: SpuData) => {
 const changeScene = (num: number) => {
   //子组件spuForm变为场景0
   scene.value = num
+  getHasSpu()
 }
 </script>
 

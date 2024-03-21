@@ -129,7 +129,14 @@
       </el-table>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="default">保存</el-button>
+      <el-button
+        :disabled="saleAttr.length > 0 ? false : true"
+        type="primary"
+        size="default"
+        @click="save"
+      >
+        保存
+      </el-button>
       <el-button type="primary" size="default" @click="cancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -141,6 +148,7 @@ import {
   reqAllTradeMark,
   reqSpuHasSaleAttr,
   reqSpuImageUrl,
+  reqAddOrUpdateSpu,
 } from '@/api/product/spu'
 import {
   AllTradeMark,
@@ -303,6 +311,33 @@ const toRead = (row: SaleAttr) => {
 
   //切换为查看模式
   row.flag = false
+}
+//保存按钮回调
+const save = async () => {
+  //整理参数
+  //1.整理照片墙数据
+  SpuParams.value.spuImageList = imgList.value.map((item: any) => {
+    return {
+      imgName: item.name,
+      imgUrl: (item.response && item.response.data) || item.url,
+    }
+  })
+  //2.整理销售属性数据
+  SpuParams.value.spuSaleAttrList = saleAttr.value
+
+  let result = await reqAddOrUpdateSpu(SpuParams.value)
+  if (result.code == 200) {
+    ElMessage({
+      type: 'success',
+      message: SpuParams.value.id ? '更新成功' : '添加成功',
+    })
+    $emit('changeScene', 0)
+  } else {
+    ElMessage({
+      type: 'error',
+      message: SpuParams.value.id ? '更新失败' : '添加失败',
+    })
+  }
 }
 
 //计算出SPU还未拥有的销售属性
