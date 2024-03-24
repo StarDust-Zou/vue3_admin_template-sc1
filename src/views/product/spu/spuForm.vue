@@ -168,7 +168,7 @@ import { computed, ref } from 'vue'
 let $emit = defineEmits(['changeScene'])
 //点击取消按钮:通知父组件切换场景为0
 const cancel = () => {
-  $emit('changeScene', 0)
+  $emit('changeScene', { flag: 0, params: 'update' })
 }
 //存储已有的SPU数据
 let AllTradeMark = ref<TradeMark[]>([])
@@ -331,13 +331,43 @@ const save = async () => {
       type: 'success',
       message: SpuParams.value.id ? '更新成功' : '添加成功',
     })
-    $emit('changeScene', 0)
+    $emit('changeScene', {
+      flag: 0,
+      params: SpuParams.value.id ? 'update' : 'add',
+    })
   } else {
     ElMessage({
       type: 'error',
       message: SpuParams.value.id ? '更新失败' : '添加失败',
     })
   }
+}
+//添加一个新的SPU初始化请求方法
+const initAddSpu = async (c3Id: number | string) => {
+  //清空数据
+  Object.assign(SpuParams.value, {
+    //清空id
+    id: '',
+    category3Id: '', //收集三级分类ID
+    spuName: '', //SPU名字
+    description: '', //SPU描述
+    tmId: '', //品牌的ID
+    spuImageList: [],
+    spuSaleAttrList: [],
+  })
+  //清空照片墙
+  imgList.value = []
+  //清空销售属性
+  saleAttr.value = []
+  saleAttrIdAndValueName.value = ''
+  //存储3级id
+  SpuParams.value.category3Id = c3Id
+  //获取全部品牌的数据
+  let result: AllTradeMark = await reqAllTradeMark()
+  let result1: HasSaleAttrResponseData = await reqAllSaleAttr()
+  //存储数据
+  AllTradeMark.value = result.data
+  allSaleAttr.value = result1.data
 }
 
 //计算出SPU还未拥有的销售属性
@@ -350,7 +380,7 @@ let unSelectSaleAttr = computed(() => {
   return unSelectArr
 })
 //对外暴露
-defineExpose({ initHasSpuData })
+defineExpose({ initHasSpuData, initAddSpu })
 </script>
 
 <style scoped></style>

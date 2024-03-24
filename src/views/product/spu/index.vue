@@ -34,6 +34,7 @@
                 size="small"
                 icon="Plus"
                 title="添加SKU"
+                @click="addSku"
               ></el-button>
               <el-button
                 type="primary"
@@ -76,7 +77,7 @@
         @changeScene="changeScene"
       ></SpuForm>
       <!-- 添加|修改SKU子组件 -->
-      <SkuForm v-show="scene == 2"></SkuForm>
+      <SkuForm v-show="scene == 2" @changeScene="changeScene"></SkuForm>
     </el-card>
   </div>
 </template>
@@ -140,6 +141,8 @@ const changeSize = () => {
 const addSpu = () => {
   //切换为场景1
   scene.value = 1
+  //点击添加调用子组件事件初始化数据
+  spu.value.initAddSpu(categoryStore.c3Id)
 }
 // 修改已有SPU按钮回调
 const updateSpu = (row: SpuData) => {
@@ -150,10 +153,22 @@ const updateSpu = (row: SpuData) => {
   spu.value.initHasSpuData(row)
 }
 //子组件spuForm绑定自定义事件
-const changeScene = (num: number) => {
+const changeScene = (obj: any) => {
   //子组件spuForm变为场景0
-  scene.value = num
-  getHasSpu()
+  scene.value = obj.flag
+  if (obj.params == 'update') {
+    //更新留在第一页
+    getHasSpu(pageNo.value)
+  } else {
+    //添加留在第一页
+    getHasSpu()
+  }
+}
+
+//添加SKU按钮回调
+const addSku = () => {
+  //点击添加SKU按钮，场景切换为二
+  scene.value = 2
 }
 </script>
 
